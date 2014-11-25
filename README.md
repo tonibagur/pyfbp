@@ -5,3 +5,5 @@ Work in progress
 
 ##TODO:
 * Multiple output channels
+* Documentation
+* Examples
