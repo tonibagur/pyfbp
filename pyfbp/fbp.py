@@ -127,9 +127,4 @@ class Ev(object):
     def evaluate(self,elem):
         return eval(self.expression)
 
-class TxIdWorkspaces(ElementTransformer):
-    def transform(self,elem):
-        print "elem",elem
-        ids=[x['id'] for x in elem['workspaces']]
-        elem['workspaces']=ids
-        return elem
+
