@@ -120,7 +120,12 @@ class ElementTransformer(FlowElement):
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
     def process(self,elem):
-        self.out_elem(self.transform(elem))
+        try:
+            self.out_elem(self.transform(elem))
+        except:
+            error=traceback.format_exc()
+            elem['error']=error
+            self.error_elem(elem)
     def transform(self,elem):
         return elem
 
