@@ -54,8 +54,9 @@ class ElementProcessor(FlowElement):
     def process(self,elem={}):
         largs,kwargs=self.compute_args(elem)
         try:
-            self.out_elem(getattr(self.connector,self.method)(*largs,**kwargs))
-            self.out_in_elem(elem)
+            out=getattr(self.connector,self.method)(*largs,**kwargs)
+            self.out_elem(out)
+            self.out_in_elem({'in':elem,'out':out})
         except:
             error=traceback.format_exc()
             elem['error']=error
@@ -85,6 +86,9 @@ class ListAcumulator(FlowElement):
 
     def count(self):
         return len(self.list)
+
+    def __getitem__(self,i):
+        return self.list[i]
 
 class BreakPoint(FlowElement):
     def __init__(self,**debug_vars):
