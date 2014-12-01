@@ -9,7 +9,7 @@ class FlowElement(object):
         if type(self)!=NullProcessor:
             self.out_objects=[NullProcessor()]
             self.out_in_objects=[NullProcessor()]
-            self.error_objects=[NullProcessor()]
+            self.error_objects=[Printer('unhandled error')]
     def compute_args(self,elem={}):
         new_largs=[x for x in self.connector_largs]
         new_kwargs=self.connector_kwargs.copy()
@@ -52,8 +52,8 @@ class ListProcessor(FlowElement):
 
 class ElementProcessor(FlowElement):
     def process(self,elem={}):
-        largs,kwargs=self.compute_args(elem)
         try:
+            largs,kwargs=self.compute_args(elem)
             out=getattr(self.connector,self.method)(*largs,**kwargs)
             self.out_elem(out)
             self.out_in_elem({'in':elem,'out':out})
