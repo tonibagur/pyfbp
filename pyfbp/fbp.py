@@ -1,6 +1,7 @@
 import traceback
 
 class FlowElement(object):
+    local_debug=False
     def __init__(self,connector=None,method=None,connector_largs=[],connector_kwargs={}):
         self.connector=connector
         self.connector_kwargs=connector_kwargs
@@ -30,49 +31,62 @@ class FlowElement(object):
         self.out_in_objects=out_in_objects
         return self
 
-    def out_elem(self,e):
+    def out_elem(self,e,debug=False):
         for o in self.out_objects:
-            o.process(e)
-    def out_in_elem(self,e):
+            o.process(e,debug)
+    def out_in_elem(self,e,debug=False):
         for o in self.out_in_objects:
-            o.process(e)
-    def error_elem(self,e):
+            o.process(e,debug)
+    def error_elem(self,e,debug=False):
         for o in self.error_objects:
-            o.process(e)
+            o.process(e,debug)
 
 class NullProcessor(FlowElement):
-    def process(self,elem={}):
+    def process(self,elem={},debug=False):
         return
 
 class ListProcessor(FlowElement):
-    def process(self,elem={}):
+    def process(self,elem={},debug=False):
+        if debug or self.local_debug:
+            print "Debug mode ListProcessor"
+            import pdb
+            pdb.set_trace()
         largs,kwargs=self.compute_args(elem)
         for x in getattr(self.connector,self.method)(*largs,**kwargs):
-            self.out_elem(x)
+            self.out_elem(x,debug)
 
 class ElementProcessor(FlowElement):
-    def process(self,elem={}):
+    def process(self,elem={},debug=False):
         try:
+            if debug or self.local_debug:
+                print "Debug mode ElementProcessor"
+                import pdb
+                pdb.set_trace()
             largs,kwargs=self.compute_args(elem)
             out=getattr(self.connector,self.method)(*largs,**kwargs)
-            self.out_elem(out)
-            self.out_in_elem({'in':elem,'out':out})
+            self.out_elem(out,debug)
+            self.out_in_elem({'in':elem,'out':out},debug)
         except:
             error=traceback.format_exc()
             elem['error']=error
-            self.error_elem(elem)
+            self.error_elem(elem,debug)
 
 
 
 class ElementFilter(FlowElement):
-    def __init__(self,filter=None):
+    def __init__(self,filter=None,debug=False):
         self.filter=filter
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
-    def process(self,elem={}):
+    def process(self,elem={},debug=False):
+        if debug or self.local_debug:
+            print "Debug mode ElementFilter"
+            import pdb
+            pdb.set_trace()
         if not self.filter or self.filter.evaluate(elem):
-            self.out_elem(elem)
+            self.out_elem(elem,debug)
+            self.out_in_elem(elem,debug)
 
 class ListAcumulator(FlowElement):
     def __init__(self):
@@ -80,9 +94,15 @@ class ListAcumulator(FlowElement):
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
-    def process(self,elem={}):
+    def process(self,elem={},debug=False):
+        if debug or self.local_debug:
+            print "Debug mode ListAcumulator"
+            import pdb
+            pdb.set_trace()
         self.list.append(elem)
-        self.out_elem(elem)
+        self.out_elem(elem,debug)
+        self.out_in_elem(elem,debug)
+
 
     def count(self):
         return len(self.list)
@@ -97,7 +117,8 @@ class BreakPoint(FlowElement):
         self.error_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.debug_vars=debug_vars
-    def process(self,elem={}):
+    def process(self,elem={},debug=False):
+        #TODO, Veure si ara es necessari tenint en compte que debug_vars pot ser util
         import pdb
         pdb.set_trace()
         self.out_elem(elem)
@@ -110,18 +131,29 @@ class Printer(FlowElement):
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
-    def process(self,elem):
+    def process(self,elem,debug=False):
+        if debug or self.local_debug:
+            print "Debug mode Printer"
+            import pdb
+            pdb.set_trace()
         print self.prefix,elem
-        self.out_elem(elem)
+        self.out_elem(elem,debug)
+        self.out_in_elem(elem,debug)
 
 class ElementTransformer(FlowElement):
     def __init__(self):
         self.out_object=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
-    def process(self,elem):
+    def process(self,elem,debug=False):
         try:
-            self.out_elem(self.transform(elem))
+            if debug or self.local_debug:
+                print "Debug mode Printer"
+                import pdb
+                pdb.set_trace()
+            e2=self.transform(elem)
+            self.out_elem(e2,debug)
+            self.out_in_elem({'in':elem,'out':e2},debug)
         except:
             error=traceback.format_exc()
             elem['error']=error
