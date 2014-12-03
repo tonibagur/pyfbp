@@ -2,7 +2,8 @@ import traceback
 
 class FlowElement(object):
     local_debug=False
-    def __init__(self,connector=None,method=None,connector_largs=[],connector_kwargs={}):
+    def __init__(self,connector=None,method=None,connector_largs=[],connector_kwargs={},name='undefined'):
+        self.name=name
         self.connector=connector
         self.connector_kwargs=connector_kwargs
         self.connector_largs=connector_largs
@@ -48,7 +49,7 @@ class NullProcessor(FlowElement):
 class ListProcessor(FlowElement):
     def process(self,elem={},debug=False):
         if debug or self.local_debug:
-            print "Debug mode ListProcessor"
+            print "Debug mode ListProcessor:",self.name
             import pdb
             pdb.set_trace()
         largs,kwargs=self.compute_args(elem)
@@ -59,7 +60,7 @@ class ElementProcessor(FlowElement):
     def process(self,elem={},debug=False):
         try:
             if debug or self.local_debug:
-                print "Debug mode ElementProcessor"
+                print "Debug mode ElementProcessor:",self.name
                 import pdb
                 pdb.set_trace()
             largs,kwargs=self.compute_args(elem)
@@ -74,14 +75,15 @@ class ElementProcessor(FlowElement):
 
 
 class ElementFilter(FlowElement):
-    def __init__(self,filter=None,debug=False):
+    def __init__(self,filter=None,debug=False,name='undefined'):
+        self.name=name
         self.filter=filter
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
     def process(self,elem={},debug=False):
         if debug or self.local_debug:
-            print "Debug mode ElementFilter"
+            print "Debug mode ElementFilter:",self.name
             import pdb
             pdb.set_trace()
         if not self.filter or self.filter.evaluate(elem):
@@ -89,14 +91,15 @@ class ElementFilter(FlowElement):
             self.out_in_elem(elem,debug)
 
 class ListAcumulator(FlowElement):
-    def __init__(self):
+    def __init__(self,name='undefined'):
+        self.name=name
         self.list=[]
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
     def process(self,elem={},debug=False):
         if debug or self.local_debug:
-            print "Debug mode ListAcumulator"
+            print "Debug mode ListAcumulator:",self.name
             import pdb
             pdb.set_trace()
         self.list.append(elem)
@@ -116,9 +119,15 @@ class BreakPoint(FlowElement):
         self.out_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
+        if 'name' in debug_vars:
+            self.name=debug_vars['name']
+            del debug_vars['name']
+        else:
+            self.name='undefined'
         self.debug_vars=debug_vars
     def process(self,elem={},debug=False):
         #TODO, Veure si ara es necessari tenint en compte que debug_vars pot ser util
+        print "Breakpoint:",self.name
         import pdb
         pdb.set_trace()
         self.out_elem(elem)
@@ -133,7 +142,7 @@ class Printer(FlowElement):
         self.error_objects=[NullProcessor()]
     def process(self,elem,debug=False):
         if debug or self.local_debug:
-            print "Debug mode Printer"
+            print "Debug mode Printer:",self.prefix
             import pdb
             pdb.set_trace()
         print self.prefix,elem
@@ -141,14 +150,15 @@ class Printer(FlowElement):
         self.out_in_elem(elem,debug)
 
 class ElementTransformer(FlowElement):
-    def __init__(self):
+    def __init__(self,name='undefined'):
         self.out_object=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
+        self.name=name
     def process(self,elem,debug=False):
         try:
             if debug or self.local_debug:
-                print "Debug mode Printer"
+                print "Debug mode Transformer",self.name
                 import pdb
                 pdb.set_trace()
             e2=self.transform(elem)
