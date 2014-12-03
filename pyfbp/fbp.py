@@ -55,7 +55,7 @@ class ListProcessor(FlowElement):
         largs,kwargs=self.compute_args(elem)
         for x in getattr(self.connector,self.method)(*largs,**kwargs):
             self.out_elem(x,debug)
-            self.out_in_elem({'in':elem,'out':x})
+            self.out_in_elem({'in':elem,'out':x},debug)
 
 class ElementProcessor(FlowElement):
     def process(self,elem={},debug=False):
