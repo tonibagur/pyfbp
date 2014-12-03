@@ -151,7 +151,7 @@ class Printer(FlowElement):
 
 class ElementTransformer(FlowElement):
     def __init__(self,name='undefined'):
-        self.out_object=[NullProcessor()]
+        self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
         self.name=name
