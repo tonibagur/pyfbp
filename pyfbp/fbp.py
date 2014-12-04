@@ -82,6 +82,16 @@ class ElementFilter(FlowElement):
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
         self.error_objects=[NullProcessor()]
+        self.out_rejected_objects=[NullProcessor()]
+
+    def out_rejected(self,*out_rejected_objects):
+        self.out_rejected_objects=out_rejected_objects
+        return self
+
+    def out_rejected_elem(self,e,debug=False):
+        for o in self.out_rejected_objects:
+            o.process(e,debug)
+
     def process(self,elem={},debug=False):
         if debug or self.local_debug:
             print "Debug mode ElementFilter:",self.name
@@ -90,6 +100,8 @@ class ElementFilter(FlowElement):
         if not self.filter or self.filter.evaluate(elem):
             self.out_elem(elem,debug)
             self.out_in_elem(elem,debug)
+        else:
+            self.out_rejected_elem(elem,debug)
 
 class ListAcumulator(FlowElement):
     def __init__(self,name='undefined'):
