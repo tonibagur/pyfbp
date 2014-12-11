@@ -25,11 +25,20 @@ class FlowElement(object):
     def out(self,*out_objects):
         self.out_objects=out_objects
         return self
+    def add_out(self,*out_objects):
+        self.out_objects+=out_objects
+        return self
     def error(self,*error_objects):
         self.error_objects=error_objects
         return self
+    def add_error(self,*error_objects):
+        self.error_objects+=error_objects
+        return self
     def out_in(self,*out_in_objects):
         self.out_in_objects=out_in_objects
+        return self
+    def add_out_in(self,*out_in_objects):
+        self.out_in_objects+=out_in_objects
         return self
 
     def out_elem(self,e,debug=False):
