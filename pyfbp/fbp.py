@@ -200,4 +200,51 @@ class Ev(object):
     def evaluate(self,elem):
         return eval(self.expression)
 
+class ExcelOutput(FlowElement):
+    def __init__(self,file_name='excel.xlsx',columns=None,name='undefined',write_header=True):
+        self.file_name=file_name
+        self.columns=columns
+        self.name=name
+        self.out_objects=[NullProcessor()]
+        self.out_in_objects=[NullProcessor()]
+        self.error_objects=[NullProcessor()]
+        from openpyxl import Workbook
+        self.wb = Workbook(write_only=True)
+        self.ws = self.wb.create_sheet()
+        self.write_header=write_header
+        self.header_written=False
+
+
+    def process(self,elem,debug=False):
+        try:
+            if debug or self.local_debug:
+                print "Debug mode ExcelOutput",self.name
+                import pdb
+                pdb.set_trace()
+            if not self.columns:
+                self.columns=elem.keys()
+            if self.write_header and not self.header_written:
+                self.header_written=True
+                self.ws.append([c for c in self.columns])
+            self.ws.append([elem[x] for x in self.columns ])
+
+
+        except:
+            error=traceback.format_exc()
+            elem['error']=error
+            self.error_elem(elem)
+
+    def save(self):
+        self.wb.save(self.file_name)
+
+if __name__=='__main__':
+    class Test(object):
+        def get_list(self):
+            return [{'val':i, 'val2':i+1} for i in range(100)]
+    xls=ExcelOutput(columns=['val','val2'])
+    ListProcessor(Test(),'get_list').out(
+        Printer(),
+        xls,
+    ).process()
+    xls.save()
 
