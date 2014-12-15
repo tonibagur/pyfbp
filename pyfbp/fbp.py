@@ -200,6 +200,29 @@ class Ev(object):
     def evaluate(self,elem):
         return eval(self.expression)
 
+class ExcelReader(object):
+    def __init__(self,file_name='excel.xlsx',sheet_name='Sheet1',read_header=True):
+        self.sheet_name=sheet_name
+        self.file_name=file_name
+        self.read_header=read_header
+        self.cols=None
+        from openpyxl import load_workbook
+        self.wb = load_workbook(filename = self.file_name, use_iterators = True)
+        self.ws = self.wb.get_sheet_by_name(self.sheet_name) # ws is now an IterableWorksheet
+    
+    def read_rows(self):
+        for row in self.ws.iter_rows(): # it brings a new method: iter_rows()
+            if not self.cols:
+                if self.read_header:
+                    self.cols=[cell.value for cell in row]
+                else:
+                    self.cols=['col'+str(i) for i in range(len(row))]
+                    yield self.build_row(row)
+            else:
+                yield self.build_row(row)
+    def build_row(self,row):
+        return dict([(self.cols[i],row[i].value) for i,c in enumerate(row)])
+
 class ExcelOutput(FlowElement):
     def __init__(self,file_name='excel.xlsx',columns=None,name='undefined',write_header=True):
         self.file_name=file_name
@@ -238,7 +261,7 @@ class ExcelOutput(FlowElement):
         self.wb.save(self.file_name)
 
 if __name__=='__main__':
-    class Test(object):
+    '''class Test(object):
         def get_list(self):
             return [{'val':i, 'val2':i+1} for i in range(100)]
     xls=ExcelOutput(columns=['val','val2'])
@@ -246,5 +269,12 @@ if __name__=='__main__':
         Printer(),
         xls,
     ).process()
-    xls.save()
+    xls.save()'''
+    xlsr=ExcelReader(file_name='excel.xlsx',sheet_name='Sheet1',read_header=True)
+    ListProcessor(xlsr,'read_rows').out(
+        Printer()
+    ).process()
+
+
+
 
