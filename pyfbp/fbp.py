@@ -260,20 +260,62 @@ class ExcelOutput(FlowElement):
     def save(self):
         self.wb.save(self.file_name)
 
+
+class CSVOutput(FlowElement):
+    def __init__(self,file_name='output.csv',columns=None,name='undefined',write_header=True,separator=";"):
+        self.file_name=file_name
+        self.columns=columns
+        self.name=name
+        self.out_objects=[NullProcessor()]
+        self.out_in_objects=[NullProcessor()]
+        self.error_objects=[NullProcessor()]
+        self.file = open(self.file_name,'w')
+        self.write_header=write_header
+        self.header_written=False
+        self.separator=separator
+
+
+    def process(self,elem,debug=False):
+        try:
+            if debug or self.local_debug:
+                print "Debug mode CSVOutput",self.name
+                import pdb
+                pdb.set_trace()
+            if not self.columns:
+                self.columns=elem.keys()
+            if self.write_header and not self.header_written:
+                self.header_written=True
+                self.file.write(self.separator.join([c for c in self.columns])+'\n')
+            self.file.write(self.separator.join([str(elem[x]) for x in self.columns ])+'\n')
+
+
+        except:
+            error=traceback.format_exc()
+            elem['error']=error
+            self.error_elem(elem)
+
+    def save(self):
+        self.file.close()
+
 if __name__=='__main__':
-    '''class Test(object):
+    class Test(object):
         def get_list(self):
             return [{'val':i, 'val2':i+1} for i in range(100)]
-    xls=ExcelOutput(columns=['val','val2'])
+    csv=CSVOutput(columns=['val','val2'])
+    ListProcessor(Test(),'get_list').out(
+        Printer(),
+        csv,
+    ).process(debug=False)
+    '''xls=ExcelOutput(columns=['val','val2'])
     ListProcessor(Test(),'get_list').out(
         Printer(),
         xls,
     ).process()
     xls.save()'''
-    xlsr=ExcelReader(file_name='excel.xlsx',sheet_name='Sheet1',read_header=True)
+    '''xlsr=ExcelReader(file_name='excel.xlsx',sheet_name='Sheet1',read_header=True)
     ListProcessor(xlsr,'read_rows').out(
         Printer()
-    ).process()
+    ).process()'''
 
 
 
