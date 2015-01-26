@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='pyfbp',
-      version='0.1.19',
+      version='0.1.20',
       description='Flow Based Programming Paradigm in Python',
       author='Toni Bagur',
       author_email='toni.bagur@coneptum.com',
