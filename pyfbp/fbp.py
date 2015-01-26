@@ -161,7 +161,7 @@ class Printer(FlowElement):
         self.prefix=prefix
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+prefix)]
+        self.error_objects=[NullProcessor()]
     def process(self,elem,debug=False):
         if debug or self.local_debug:
             print "Debug mode Printer:",self.prefix
