@@ -90,7 +90,7 @@ class ElementFilter(FlowElement):
         self.filter=filter
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+name))]
+        self.error_objects=[Printer('unhandled error in object:'+name)]
         self.out_rejected_objects=[NullProcessor()]
 
     def out_rejected(self,*out_rejected_objects):
@@ -118,7 +118,7 @@ class ListAcumulator(FlowElement):
         self.list=[]
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+name))]
+        self.error_objects=[Printer('unhandled error in object:'+name)]
     def process(self,elem={},debug=False):
         if debug or self.local_debug:
             print "Debug mode ListAcumulator:",self.name
@@ -139,7 +139,7 @@ class BreakPoint(FlowElement):
     def __init__(self,**debug_vars):
         self.list=[]
         self.out_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+name))]
+        self.error_objects=[Printer('unhandled error in object:'+name)]
         self.out_in_objects=[NullProcessor()]
         if 'name' in debug_vars:
             self.name=debug_vars['name']
@@ -161,7 +161,7 @@ class Printer(FlowElement):
         self.prefix=prefix
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+name))]
+        self.error_objects=[Printer('unhandled error in object:'+name)]
     def process(self,elem,debug=False):
         if debug or self.local_debug:
             print "Debug mode Printer:",self.prefix
@@ -175,7 +175,7 @@ class ElementTransformer(FlowElement):
     def __init__(self,name='undefined'):
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+name))]
+        self.error_objects=[Printer('unhandled error in object:'+name)]
         self.name=name
     def process(self,elem,debug=False):
         try:
@@ -230,7 +230,7 @@ class ExcelOutput(FlowElement):
         self.name=name
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+name))]
+        self.error_objects=[Printer('unhandled error in object:'+name)]
         from openpyxl import Workbook
         self.wb = Workbook(write_only=True)
         self.ws = self.wb.create_sheet()
@@ -268,7 +268,7 @@ class CSVOutput(FlowElement):
         self.name=name
         self.out_objects=[NullProcessor()]
         self.out_in_objects=[NullProcessor()]
-        self.error_objects=[Printer('unhandled error in object:'+name))]
+        self.error_objects=[Printer('unhandled error in object:'+name)]
         self.file = open(self.file_name,'w')
         self.write_header=write_header
         self.header_written=False
